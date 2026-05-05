@@ -5,15 +5,14 @@ const jwt = require('jsonwebtoken');
 const { JWT_SECRET = 'dev-secret' } = process.env;
 
 // GET /users
-
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch(() => res.status(500).send({ message: 'Error del servidor' }));
+    .catch(next);
 };
 
 // GET /users/:userId
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail(() => {
       const err = new Error('Usuario no encontrado');
@@ -21,20 +20,11 @@ module.exports.getUserById = (req, res) => {
       throw err;
     })
     .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'ID inválido' });
-      }
-
-      if (err.statusCode === 404) {
-        return res.status(404).send({ message: err.message });
-      }
-
-      return res.status(500).send({ message: 'Error del servidor' });
-    });
+    .catch(next);
 };
 
-module.exports.getCurrentUser = (req, res) => {
+// GET /users/me
+module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => {
       const err = new Error('Usuario no encontrado');
@@ -42,22 +32,14 @@ module.exports.getCurrentUser = (req, res) => {
       throw err;
     })
     .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'ID inválido' });
-      }
-
-      if (err.statusCode === 404) {
-        return res.status(404).send({ message: err.message });
-      }
-
-      return res.status(500).send({ message: 'Error del servidor' });
-    });
+    .catch(next);
 };
 
-// POST /users
-module.exports.createUser = (req, res) => {
-  const { name, about, avatar, email, password } = req.body;
+// POST /signup
+module.exports.createUser = (req, res, next) => {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
   bcrypt.hash(password, 10)
     .then((hash) => User.create({
@@ -72,27 +54,17 @@ module.exports.createUser = (req, res) => {
       delete userData.password;
       res.status(201).send(userData);
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Datos inválidos' });
-      }
-
-      if (err.code === 11000) {
-        return res.status(409).send({ message: 'El email ya existe' });
-      }
-
-      return res.status(500).send({ message: 'Error del servidor' });
-    });
+    .catch(next);
 };
 
 // PATCH /users/me
-module.exports.updateUser = (req, res) => {
+module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(
     req.user._id,
     { name, about },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
     .orFail(() => {
       const err = new Error('Usuario no encontrado');
@@ -100,31 +72,17 @@ module.exports.updateUser = (req, res) => {
       throw err;
     })
     .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Datos inválidos' });
-      }
-
-      if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'ID inválido' });
-      }
-
-      if (err.statusCode === 404) {
-        return res.status(404).send({ message: err.message });
-      }
-
-      return res.status(500).send({ message: 'Error del servidor' });
-    });
+    .catch(next);
 };
 
 // PATCH /users/me/avatar
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(
     req.user._id,
     { avatar },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
     .orFail(() => {
       const err = new Error('Usuario no encontrado');
@@ -132,48 +90,37 @@ module.exports.updateAvatar = (req, res) => {
       throw err;
     })
     .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Datos inválidos' });
-      }
-
-      if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'ID inválido' });
-      }
-
-      if (err.statusCode === 404) {
-        return res.status(404).send({ message: err.message });
-      }
-
-      return res.status(500).send({ message: 'Error del servidor' });
-    });
+    .catch(next);
 };
 
-module.exports.login = (req, res) => {
+// POST /signin
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject();
+        const err = new Error('Credenciales incorrectas');
+        err.statusCode = 401;
+        throw err;
       }
 
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return Promise.reject();
+            const err = new Error('Credenciales incorrectas');
+            err.statusCode = 401;
+            throw err;
           }
 
           const token = jwt.sign(
             { _id: user._id },
             JWT_SECRET,
-            { expiresIn: '7d' }
+            { expiresIn: '7d' },
           );
 
-          return res.send({ token });
+          res.send({ token });
         });
     })
-    .catch(() => {
-      res.status(401).send({ message: 'Credenciales incorrectas' });
-    });
+    .catch(next);
 };

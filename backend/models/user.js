@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/avatar_1604080799.jpg',
+    validate: {
+      validator: validator.isURL,
+      message: 'URL inválida',
+    },
   },
   email: {
     type: String,
