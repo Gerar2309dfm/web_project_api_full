@@ -31,7 +31,7 @@ app.use(requestLogger);
 app.use(cors({
    origin: [
     'http://localhost:5173',
-    'https://tudominio.com'
+    'https://miappgerardo.duckdns.org'
   ],
 }));
 
@@ -89,8 +89,8 @@ app.use((req, res, next) => {
   next(err);
 });
 
-app.use(errorLogger);
 app.use(errors());
+app.use(errorLogger);
 app.use(errorHandler);
 
 // LEVANTAR SERVIDOR
