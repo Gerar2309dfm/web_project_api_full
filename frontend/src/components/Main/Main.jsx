@@ -12,6 +12,7 @@ function Main({
   onOpenPopup,
   onClosePopup,
   onCardLike,
+  onCardDelete,
   onAddPlaceSubmit,
   onCardClick,
   onUpdateUser,
@@ -80,6 +81,7 @@ function Main({
               key={card._id}
               card={card}
               onCardLike={onCardLike}
+              onCardDelete={onCardDelete}
               onImageClick={onCardClick}
             />
           ))}

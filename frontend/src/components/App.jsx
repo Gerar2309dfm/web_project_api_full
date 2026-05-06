@@ -141,6 +141,18 @@ function App() {
   }
 }
 
+async function handleCardDelete(cardId) {
+  try {
+    await api.deleteCard(cardId);
+
+    setCards((prevCards) =>
+      prevCards.filter((card) => card._id !== cardId)
+    );
+  } catch (err) {
+    console.error(err);
+  }
+}
+
   async function handleAddPlaceSubmit(data) {
     try {
       const newCard = await api.addNewCard(data);
@@ -191,6 +203,7 @@ function App() {
                   onOpenPopup={handleOpenPopup}
                   onClosePopup={handleClosePopup}
                   onCardLike={handleCardLike}
+                  onCardDelete={handleCardDelete}
                   onAddPlaceSubmit={handleAddPlaceSubmit}
                   onCardClick={handleCardClick}
                   onUpdateUser={handleUpdateUser}

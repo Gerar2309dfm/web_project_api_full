@@ -69,6 +69,13 @@ class Api {
       headers: this._getHeaders(),
     }).then(this._handleResponse);
   }
+
+  deleteCard(cardId) {
+  return fetch(`${this._baseUrl}/cards/${cardId}`, {
+    method: "DELETE",
+    headers: this._getHeaders(),
+  }).then(this._handleResponse);
+ }
 }
 
 const api = new Api({
