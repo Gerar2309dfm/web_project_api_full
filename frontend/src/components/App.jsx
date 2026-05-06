@@ -117,9 +117,13 @@ function App() {
   }
 
   async function handleCardLike(card) {
-  const isLiked = card.likes?.some(
-    (i) => (i._id || i) === currentUser._id
-  ) || false;
+  const userId = currentUser._id;
+
+  const isLiked = card.likes.some((id) => {
+    return typeof id === "string"
+      ? id === userId
+      : id._id === userId;
+  });
 
   try {
     const newCard = await api.changeLikeCardStatus(
@@ -127,13 +131,13 @@ function App() {
       isLiked
     );
 
-    setCards((state) =>
-      state.map((c) =>
+    setCards((prevCards) =>
+      prevCards.map((c) =>
         c._id === card._id ? newCard : c
       )
     );
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
   }
 }
 
