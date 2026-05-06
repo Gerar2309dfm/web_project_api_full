@@ -124,7 +124,7 @@ function App() {
   try {
     const newCard = await api.changeLikeCardStatus(
       card._id,
-      !isLiked
+      isLiked
     );
 
     setCards((state) =>
