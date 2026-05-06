@@ -130,7 +130,6 @@ function App() {
       card._id,
       isLiked
     );
-    console.log("RESPUESTA BACKEND:", newCard);
 
     setCards((prevCards) =>
       prevCards.map((c) =>
