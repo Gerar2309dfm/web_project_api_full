@@ -4,9 +4,11 @@ class Api {
   }
 
   _getHeaders() {
+    const token = localStorage.getItem("jwt");
+
     return {
       "Content-Type": "application/json",
-      authorization: "28d8c648-c411-484b-a3a1-f90b62549144",
+      Authorization: `Bearer ${token}`,
     };
   }
 
@@ -70,7 +72,7 @@ class Api {
 }
 
 const api = new Api({
-  baseUrl: "https://around-api.es.tripleten-services.com/v1",
+  baseUrl: "https://miappgerardo-api.duckdns.org",
 });
 
 export default api;

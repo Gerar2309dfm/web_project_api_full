@@ -1,4 +1,4 @@
-const BASE_URL = "https://se-register-api.en.tripleten-services.com/v1";
+const BASE_URL = "https://miappgerardo-api.duckdns.org";
 
 // Registro
 export const register = (email, password) => {

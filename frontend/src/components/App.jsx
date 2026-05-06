@@ -38,7 +38,7 @@ function App() {
       auth.checkToken(token)
         .then((data) => {
           setLoggedIn(true);
-          setUserEmail(data.data.email);
+          setUserEmail(data.email);
           navigate("/");
         })
         .catch(console.error);
@@ -105,7 +105,7 @@ function App() {
     setSelectedCard(null);
   }
 
-  // 🔥 cerrar TODO
+  // cerrar TODO
   function closeAllPopups() {
     setPopup(null);
     setSelectedCard(null);
@@ -117,24 +117,25 @@ function App() {
   }
 
   async function handleCardLike(card) {
-    const isLiked =
-      card.likes?.some((i) => i._id === currentUser._id) || false;
+  const isLiked = card.likes?.some(
+    (i) => (i._id || i) === currentUser._id
+  ) || false;
 
-    try {
-      const newCard = await api.changeLikeCardStatus(
-        card._id,
-        !isLiked
-      );
+  try {
+    const newCard = await api.changeLikeCardStatus(
+      card._id,
+      !isLiked
+    );
 
-      setCards((state) =>
-        state.map((c) =>
-          c._id === card._id ? newCard : c
-        )
-      );
-    } catch (error) {
-      console.error(error);
-    }
+    setCards((state) =>
+      state.map((c) =>
+        c._id === card._id ? newCard : c
+      )
+    );
+  } catch (error) {
+    console.error(error);
   }
+}
 
   async function handleAddPlaceSubmit(data) {
     try {
