@@ -10,7 +10,8 @@ function Card({ card, onCardLike, onCardDelete, onImageClick }) {
       : id._id === currentUser._id
   );
 
-  const isOwn = card.owner === currentUser._id;
+ const isOwn =
+  (card.owner?._id || card.owner) === currentUser._id;
 
   function handleLikeClick() {
     onCardLike(card);
